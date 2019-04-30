@@ -16,17 +16,36 @@ const imagemin = require('gulp-imagemin');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 const babel = require('gulp-babel');
+const wiredep = require('gulp-wiredep');
+
+/*Подключаемые модули для работы с html файлами*/
+const pug = require('gulp-pug');
 
 
 
 const cssFiles = [
-	'./node_modules/normalize.css/normalize.css',
 	'./src/css/**/*.css'
 ]; // список и порядок подключаемых модулей css
 
 const jsFiles = [
 	'./src/js/**/*.js'
 ]; // список и порядок подключаемых модулей js
+
+gulp.task('bower', function () {
+  return gulp.src('index.html')
+    .pipe(wiredep({
+      directory: 'build/js'
+    }))
+    .pipe(gulp.dest('./'))
+})
+
+function compilationHTML() {
+    return gulp.src('./*.pug')
+  .pipe(pug({
+    pretty:true
+  }))
+  .pipe(gulp.dest('./'))
+}
 
 function compilationSass() {
 	return gulp.src('./src/sass/**/*.scss')
@@ -72,6 +91,7 @@ function start() {
 	gulp.watch('./src/css/**/*.css', compilationCss);
 	gulp.watch('./src/images/**/*.*', optimizationImages);
 	gulp.watch('./src/js/**/*.js', compilationJS);
+    gulp.watch("./*.pug", compilationHTML);
 	gulp.watch("./*.html").on('change', browserSync.reload);
 	browserSync.init({
 	    server: {
